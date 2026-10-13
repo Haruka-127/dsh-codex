@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import {
   detectCompatibility,
@@ -14,6 +15,34 @@ const compatiblePackages = {
 } as const
 
 describe('compatibility contract', () => {
+  it('keeps the package dependencies aligned with the supported runtime versions', () => {
+    const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+      dependencies: Record<string, string>
+      peerDependencies: Record<string, string>
+      devDependencies: Record<string, string>
+    }
+    for (const group of ['dependencies', 'peerDependencies', 'devDependencies'] as const) {
+      for (const [name, version] of Object.entries(manifest[group])) {
+        if (!name.startsWith('@deepseek-ai/dsh-') && name !== '@earendil-works/pi-ai') continue
+        const supported = name === '@earendil-works/pi-ai' ? SUPPORTED_PI_AI_VERSION : SUPPORTED_DSH_PLUGIN_API_VERSION
+        expect(version, `${group}.${name}`).toBe(group === 'peerDependencies' ? `^${supported}` : supported)
+      }
+    }
+  })
+
+  it.each([
+    ['@deepseek-ai/dsh-llm', '0.2.0-rc.1'],
+    ['@deepseek-ai/dsh-llm-pi-ai', '0.2.0-rc.1'],
+    ['@earendil-works/pi-ai', '0.85.1'],
+  ] as const)('rejects the previous runtime version of %s', (name, version) => {
+    const report = evaluateCompatibility({
+      nodeVersion: 'v24.0.0',
+      packageVersions: { ...compatiblePackages, [name]: version },
+    })
+    expect(report.status).toBe('incompatible')
+    expect(report.packages[name]).toMatchObject({ installed: version, status: 'incompatible' })
+  })
+
   it('evaluates the declared Node, DSH API, and pi-ai versions as compatible', () => {
     const report = evaluateCompatibility({ nodeVersion: 'v22.19.0', packageVersions: compatiblePackages })
     expect(report).toEqual({

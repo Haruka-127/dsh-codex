@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { mkdtemp, readFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { SUPPORTED_DSH_PLUGIN_API_VERSION, SUPPORTED_PI_AI_VERSION } from '../src/compatibility.ts'
 
 const mocked = vi.hoisted(() => ({
   diagnose: vi.fn(),
@@ -147,9 +148,9 @@ describe('dsh-codex CLI', () => {
         status: 'compatible',
         node: { supported: '^22.19.0 || >=24.0.0', installed: 'v22.19.0', status: 'compatible' },
         packages: {
-          '@deepseek-ai/dsh-llm': { supported: '0.1.7-rc.2', installed: '0.1.7-rc.2', status: 'compatible' },
-          '@deepseek-ai/dsh-llm-pi-ai': { supported: '0.1.7-rc.2', installed: '0.1.7-rc.2', status: 'compatible' },
-          '@earendil-works/pi-ai': { supported: '0.85.1', installed: '0.85.1', status: 'compatible' },
+          '@deepseek-ai/dsh-llm': { supported: SUPPORTED_DSH_PLUGIN_API_VERSION, installed: SUPPORTED_DSH_PLUGIN_API_VERSION, status: 'compatible' },
+          '@deepseek-ai/dsh-llm-pi-ai': { supported: SUPPORTED_DSH_PLUGIN_API_VERSION, installed: SUPPORTED_DSH_PLUGIN_API_VERSION, status: 'compatible' },
+          '@earendil-works/pi-ai': { supported: SUPPORTED_PI_AI_VERSION, installed: SUPPORTED_PI_AI_VERSION, status: 'compatible' },
         },
       },
       hints: ['Safe diagnostic hint'],
@@ -211,9 +212,9 @@ describe('dsh-codex CLI', () => {
         status: 'incompatible',
         node: { supported: '^22.19.0 || >=24.0.0', installed: 'v22.19.0', status: 'compatible' },
         packages: {
-          '@deepseek-ai/dsh-llm': { supported: '0.1.7-rc.2', installed: '0.1.0-rc.6', status: 'incompatible' },
-          '@deepseek-ai/dsh-llm-pi-ai': { supported: '0.1.7-rc.2', installed: '0.1.0-rc.6', status: 'incompatible' },
-          '@earendil-works/pi-ai': { supported: '0.85.1', installed: '0.84.4', status: 'incompatible' },
+          '@deepseek-ai/dsh-llm': { supported: SUPPORTED_DSH_PLUGIN_API_VERSION, installed: '0.1.0-rc.6', status: 'incompatible' },
+          '@deepseek-ai/dsh-llm-pi-ai': { supported: SUPPORTED_DSH_PLUGIN_API_VERSION, installed: '0.1.0-rc.6', status: 'incompatible' },
+          '@earendil-works/pi-ai': { supported: SUPPORTED_PI_AI_VERSION, installed: '0.84.4', status: 'incompatible' },
         },
       },
       hints: ['Compatibility mismatch'],

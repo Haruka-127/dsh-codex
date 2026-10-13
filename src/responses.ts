@@ -2,12 +2,16 @@
 
 import {
   createAssistantMessageEventStream,
+  getInitialSystemMessage,
+  getSystemMessageText,
+  resolveTranscript,
+  resolveTranscriptTools,
 } from '@earendil-works/pi-ai'
 import type {
   AssistantMessage,
   AssistantMessageEventStream,
   Api,
-  Context as PiContext,
+  TranscriptContext as PiContext,
   FetchFunction,
   Model,
   Provider,
@@ -416,22 +420,37 @@ export class OpenAICodexResponseRuntime {
     const access = options?.apiKey
     if (access === undefined || access.length === 0) throw new Error('OpenAI Codex compact request has no OAuth token')
     const messages = context.messages.length === 0 ? [] : context.messages.slice(0, -1)
+    const compat = model.compat as {
+      supportsStrictMode?: boolean
+      supportsOpenAIGrammarTools?: boolean
+      supportsMidConvoSystemMessages?: boolean
+      supportsAdditionalTools?: boolean
+      supportsToolSearch?: boolean
+    } | undefined
+    const transcript = resolveTranscript({ ...context, messages }, compat?.supportsMidConvoSystemMessages)
+    const toolOptions = {
+      strict: null,
+      supportsStrictMode: compat?.supportsStrictMode ?? true,
+      supportsOpenAIGrammarTools: compat?.supportsOpenAIGrammarTools ?? false,
+    }
     const input = expandNativeCompactionMarkers(convertResponsesMessages(
       model,
-      { ...context, messages },
+      transcript,
       CODEX_TOOL_CALL_PROVIDERS,
-      { includeSystemPrompt: false },
+      {
+        includeSystemPrompt: false,
+        supportsMidConvoSystemMessages: compat?.supportsMidConvoSystemMessages ?? false,
+        supportsAdditionalTools: compat?.supportsAdditionalTools ?? false,
+        supportsToolSearch: compat?.supportsToolSearch ?? false,
+        toolOptions,
+      },
     ))
-    const compat = model.compat as { supportsStrictMode?: boolean; supportsOpenAIGrammarTools?: boolean } | undefined
-    const supportsStrictMode = compat?.supportsStrictMode ?? true
-    const supportsOpenAIGrammarTools = compat?.supportsOpenAIGrammarTools ?? false
-    const tools = context.tools === undefined || context.tools.length === 0
-      ? undefined
-      : convertResponsesTools(context.tools, {
-          strict: null,
-          supportsStrictMode,
-          supportsOpenAIGrammarTools,
-        })
+    const { requestTools } = resolveTranscriptTools(
+      transcript.messages,
+      compat?.supportsAdditionalTools === true || compat?.supportsToolSearch === true,
+    )
+    const tools = requestTools.length === 0 ? undefined : convertResponsesTools(requestTools, toolOptions)
+    const systemMessage = getInitialSystemMessage(transcript.messages)
     const mappedEffort = options?.reasoning === undefined
       ? undefined
       : model.thinkingLevelMap?.[options.reasoning] ?? options.reasoning
@@ -441,7 +460,7 @@ export class OpenAICodexResponseRuntime {
       store: false,
       stream: true,
       input: [...input, { type: 'compaction_trigger' }],
-      instructions: context.systemPrompt ?? '',
+      instructions: systemMessage === undefined ? '' : getSystemMessageText(systemMessage),
       ...tools === undefined ? {} : { tools },
       tool_choice: 'auto',
       parallel_tool_calls: true,

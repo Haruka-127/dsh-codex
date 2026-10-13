@@ -177,7 +177,7 @@ dsh 登录默认与 Codex CLI／Desktop 相互独立：
 
 ## 兼容性说明
 
-- 当前源码面向成套发布的 DSH `0.2.0-rc.1` 插件表层，并使用其正式的 volatile settings 与 `dsh-http-proxy` 实现。同时使用 `@earendil-works/pi-ai` `0.85.1`；adapter 仍会在读取历史时迁移旧版 pi-ai replay envelope，因此升级后已有 reasoning／tool 元数据可继续使用。
+- 当前源码面向成套发布的 DSH `0.2.0-rc.2` 插件表层，并使用其正式的 volatile settings 与 `dsh-http-proxy` 实现。同时使用 `@earendil-works/pi-ai` `0.87.1`；adapter 仍会在读取历史时迁移旧版 pi-ai replay envelope，因此升级后已有 reasoning／tool 元数据可继续使用。
 - 插件只使用已发布的 dsh 插件表层，不要求修改版 Harness checkout。单独安装时即可生成附件并保存本地输出。
 - ChatGPT 套餐资格、模型权限、配额及后端行为由 OpenAI 控制，可能发生变化。
 - Codex 端点不执行普通 Responses 的 `max_output_tokens` 字段。压缩可以工作，但该路由无法在服务端落实配置的摘要上限。

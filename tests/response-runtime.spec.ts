@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createAssistantMessageEventStream } from '@earendil-works/pi-ai'
+import { createAssistantMessageEventStream, normalizeContext } from '@earendil-works/pi-ai'
 import type { SimpleStreamOptions, Transport } from '@earendil-works/pi-ai'
 import { openaiCodexProvider } from '@earendil-works/pi-ai/providers/openai-codex'
 import { OpenAICodexResponseRuntime } from '../src/responses.ts'
@@ -26,7 +26,7 @@ function runtimeHarness(initialReuse: boolean) {
     ?? base.getModels()[0]
   if (model === undefined) throw new Error('Codex provider has no test model')
   const call = (sessionId: string): void => {
-    wrapped.streamSimple(model, { messages: [] }, { sessionId })
+    wrapped.streamSimple(model, normalizeContext({ messages: [] }), { sessionId })
   }
   return {
     transports,

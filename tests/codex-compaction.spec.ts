@@ -13,7 +13,11 @@ import {
 } from '@deepseek-ai/dsh-llm'
 import LlmRuntime from '@deepseek-ai/dsh-llm'
 import WebRuntime from '@deepseek-ai/dsh-web'
+import { normalizeContext } from '@earendil-works/pi-ai'
+import type { Tool } from '@earendil-works/pi-ai'
+import { openaiCodexProvider } from '@earendil-works/pi-ai/providers/openai-codex'
 import * as OpenAICodex from '../src/index.ts'
+import { OpenAICodexResponseRuntime } from '../src/responses.ts'
 
 let context: Context | undefined
 let root: string | undefined
@@ -265,6 +269,7 @@ describe('OpenAI Codex compaction request', () => {
       model: 'gpt-5.6-sol',
       purpose: 'compaction',
       system: 'Preserve durable context.',
+      tools: [{ name: 'read_file', description: 'Read a file.', parameters: { type: 'object', properties: {} } }],
       messages: [
         userMessage('keep this request'),
         createUserMessage({
@@ -309,6 +314,9 @@ describe('OpenAI Codex compaction request', () => {
       instructions: 'Preserve durable context.',
       include: ['reasoning.encrypted_content'],
     })
+    expect(compactBody.tools).toEqual([
+      { type: 'function', name: 'read_file', description: 'Read a file.', parameters: { type: 'object', properties: {} }, strict: null },
+    ])
     expect(compactBody.input).toEqual([
       { role: 'user', content: [{ type: 'input_text', text: 'keep this request' }] },
       { type: 'compaction_trigger' },
@@ -318,6 +326,55 @@ describe('OpenAI Codex compaction request', () => {
       ...restoredOutput,
       { role: 'user', content: [{ type: 'input_text', text: 'continue' }] },
     ])
+  })
+
+  it.each([false, true])('preserves transcript prompt and tool updates during native compaction (mid-conversation support: %s)', async supportsMidConvoSystemMessages => {
+    const provider = openaiCodexProvider()
+    const baseModel = provider.getModels().find(model => model.id === 'gpt-5.6-sol')
+    if (baseModel === undefined) throw new Error('Codex model is missing')
+    const model = { ...baseModel, compat: { ...baseModel.compat, supportsMidConvoSystemMessages } }
+    const originalTool = { name: 'old_tool', description: 'Old tool.', parameters: { type: 'object', properties: {} } } as Tool
+    const currentTool = { ...originalTool, name: 'read_file', description: 'Read a file.' }
+    const transcript = normalizeContext({
+      systemPrompt: 'Base instructions.',
+      tools: [originalTool],
+      messages: [
+        { role: 'user', content: 'keep this request', timestamp: 1 },
+        { role: 'system', content: 'Updated instructions.', toolsRemoved: [{ name: 'old_tool' }], toolsAdded: [currentTool], timestamp: 2 },
+        { role: 'user', content: 'private Harness summary instruction', timestamp: 3 },
+      ],
+    })
+    const requests: Record<string, unknown>[] = []
+    const requestFetch: typeof globalThis.fetch = async (_input, init) => {
+      if (init === undefined) throw new Error('expected request init')
+      requests.push(requestJson(init))
+      return new Response(compactionEvents(), { headers: { 'content-type': 'text/event-stream' } })
+    }
+    const runtime = new OpenAICodexResponseRuntime(() => ({ useNativeCompaction: true, useWebSocketContextReuse: false }), requestFetch)
+    const leaveCompaction = runtime.enterCompaction('session-transcript-compact')
+    try {
+      const result = await runtime.wrap(provider).streamSimple(model, transcript, {
+        apiKey: accessToken('account-1'),
+        sessionId: 'session-transcript-compact',
+        fetch: requestFetch,
+      }).result()
+      expect(result.stopReason).toBe('stop')
+      expect(result.content).toEqual([{ type: 'text', text: expect.stringContaining('encrypted-checkpoint') }])
+    } finally {
+      leaveCompaction()
+    }
+    expect(requests).toHaveLength(1)
+    expect(requests[0]).toMatchObject({
+      instructions: supportsMidConvoSystemMessages ? 'Base instructions.' : 'Base instructions.\n\nUpdated instructions.',
+      tools: [{ type: 'function', name: 'read_file' }],
+    })
+    expect(requests[0]?.input).toEqual([
+      { role: 'user', content: [{ type: 'input_text', text: 'keep this request' }] },
+      ...(supportsMidConvoSystemMessages ? [{ role: 'developer', content: 'Updated instructions.' }] : []),
+      { type: 'compaction_trigger' },
+    ])
+    expect(JSON.stringify(requests)).not.toContain('private Harness summary instruction')
+    expect(JSON.stringify(requests)).not.toContain('old_tool')
   })
 
   it('falls back to Harness compaction when the native endpoint is unavailable', async () => {
