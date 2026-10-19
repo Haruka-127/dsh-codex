@@ -1,5 +1,7 @@
 # dsh Codex
 
+本分支兼容 shiguredo-dsh 的峰时路由 adapter API。Codex 提供空的峰时路由映射，保持原有 provider 路由，不启用按时段切换 provider。
+
 [English](README.md) | 中文
 
 **[迁移指南：修复 dsh-codex 0.3.0 之前版本写入的历史 Session](docs/session-repair.zh.md)**

@@ -624,7 +624,9 @@ export function createOpenAICodexAdapter(
       { ...provider, getModels: () => nextModelCatalog },
       nextContextWindow
     );
-    const profile: ResolvedPiAiProviderProfile = {
+    const profile: ResolvedPiAiProviderProfile & {
+      peak: ReadonlyMap<string, readonly never[]>;
+    } = {
       provider: OPENAI_CODEX_PROVIDER,
       displayName: "OpenAI Codex",
       streamIdleTimeoutMs: OPENAI_CODEX_STREAM_IDLE_TIMEOUT_MS,
@@ -640,6 +642,9 @@ export function createOpenAICodexAdapter(
       retryPolicy: OPENAI_CODEX_RETRY_POLICY,
       configuredMaxTokens: new Map(),
       modelErrors: new Map(),
+      // shiguredo-dsh requires peak routing metadata even when no model uses
+      // alternate providers. Official DSH 0.2.1-rc.2 does not declare it yet.
+      peak: new Map(),
       piProvider: responses.wrap(configuredProvider),
     };
     resolvedContextWindow = nextContextWindow;

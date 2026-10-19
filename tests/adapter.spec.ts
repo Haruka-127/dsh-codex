@@ -22,6 +22,24 @@ import {
 import { Config } from "../src/index.ts";
 
 describe("OpenAI Codex adapter policy", () => {
+  it("supplies empty peak routing metadata for shiguredo-dsh", () => {
+    const adapter = createOpenAICodexAdapter(
+      {} as OpenAICodexCredentialStore,
+      () => undefined,
+      () => ({ useWebSocketContextReuse: false, useNativeCompaction: false })
+    );
+    const profile = (
+      adapter as unknown as {
+        config: { profiles: () => Map<string, { peak: ReadonlyMap<string, readonly never[]> }> };
+      }
+    ).config.profiles().get(OPENAI_CODEX_PROVIDER);
+
+    if (profile === undefined) throw new Error("Codex provider profile missing");
+    expect(profile.peak).toBeInstanceOf(Map);
+    expect([...profile.peak.values()]).toEqual([]);
+    expect(profile.peak.get("gpt-6-sol")).toBeUndefined();
+  });
+
   it("validates optional catalog and context-window configuration", () => {
     const defaults = Config({});
     expect(defaults.models.get()).toBeUndefined();

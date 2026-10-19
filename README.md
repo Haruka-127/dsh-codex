@@ -2,6 +2,10 @@
 
 English | [中文](README.zh.md)
 
+This branch adds compatibility with shiguredo-dsh's peak-routing adapter API.
+Codex supplies an empty peak-routing map and keeps its normal provider route;
+it does not opt into time-based alternate-provider routing.
+
 **[Migration guide: repair Sessions created by dsh-codex versions before 0.3.0](docs/session-repair.md)**
 
 Use a ChatGPT subscription in [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) through OpenAI's Codex sign-in flow—no OpenAI Platform API key required and no dsh source patch required.
