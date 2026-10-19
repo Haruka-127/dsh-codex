@@ -3,7 +3,7 @@ import { openaiCodexProvider as piOpenaiCodexProvider } from '@earendil-works/pi
 import { loginOpenAICodexDeviceCode } from './oauth-device-code.ts'
 import { loginOpenAICodexBrowser } from './oauth-browser.ts'
 
-// Match pi-ai 0.87.1's Codex OAuth client and refresh grant. Keep login UI,
+// Match pi-ai 1.1.0's legacy Codex OAuth client and refresh grant. Keep login UI,
 // cancellation, auth resolution and expiry scheduling owned by pi-ai.
 const TOKEN_URL = 'https://auth.openai.com/oauth/token'
 const CLIENT_ID = 'app_EMoamEEZ73f0CkXaXp7hrann'

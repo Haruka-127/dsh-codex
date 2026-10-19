@@ -29,6 +29,8 @@ The bundle uses standard dsh plugin APIs. Do not patch, fork, build, or commit c
 
 Run `dsh --version` or `dsh --help`. From a source checkout, run `pnpm dsh --version` or `pnpm dsh --help`. Stop and report the exact launcher failure if it does not run.
 
+This source targets DSH `0.2.1-rc.2` (the npm `next` channel), not the older `latest` channel. If the installed launcher is older, ask the user to upgrade before installing this checkout; do not silently upgrade their dsh installation.
+
 ### 2. Install the bundle
 
 For the default Web profile:

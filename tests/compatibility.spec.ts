@@ -31,9 +31,9 @@ describe('compatibility contract', () => {
   })
 
   it.each([
-    ['@deepseek-ai/dsh-llm', '0.2.0-rc.1'],
-    ['@deepseek-ai/dsh-llm-pi-ai', '0.2.0-rc.1'],
-    ['@earendil-works/pi-ai', '0.85.1'],
+    ['@deepseek-ai/dsh-llm', '0.2.0-rc.2'],
+    ['@deepseek-ai/dsh-llm-pi-ai', '0.2.0-rc.2'],
+    ['@earendil-works/pi-ai', '0.87.1'],
   ] as const)('rejects the previous runtime version of %s', (name, version) => {
     const report = evaluateCompatibility({
       nodeVersion: 'v24.0.0',

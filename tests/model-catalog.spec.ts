@@ -92,6 +92,7 @@ describe("Codex model discovery", () => {
         "gpt-5.6-terra",
         "gpt-5.6-luna",
         "gpt-5.5",
+        "gpt-6.1-sol",
         "gpt-future-b",
         "gpt-future-a",
         "gpt-reserve",
@@ -138,7 +139,7 @@ describe("Codex model discovery", () => {
       () => openAICodexModelCatalog(provider)
     );
     const adapter = createOpenAICodexAdapter(
-      {} as OpenAICodexCredentialStore, () => undefined,
+      { read: async () => undefined } as unknown as OpenAICodexCredentialStore, () => undefined,
       () => ({ useWebSocketContextReuse: false, useNativeCompaction: false }),
       undefined, () => policy.modelCatalogSnapshot().models,
       undefined, undefined, undefined, provider

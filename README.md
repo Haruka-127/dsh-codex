@@ -177,7 +177,7 @@ Explicit shared files use in-process serialization, with no `.lock` or refresh-i
 
 ## Compatibility notes
 
-- Current source targets the DSH `0.2.0-rc.2` plugin surfaces and uses its official volatile settings and `dsh-http-proxy` implementations. It uses `@earendil-works/pi-ai` `0.87.1` and still migrates earlier pi-ai replay envelopes while reading history so existing reasoning/tool metadata remains usable after upgrades.
+- Current source targets the DSH `0.2.1-rc.2` plugin surfaces (npm's `next` channel) and uses its official volatile settings and `dsh-http-proxy` implementations. It uses `@earendil-works/pi-ai` `1.1.0` and still migrates earlier pi-ai replay envelopes while reading history so existing reasoning/tool metadata remains usable after upgrades. The retired `dsh-invariants` service is no longer required; the legacy `dsh-codex/invariant` entry point remains a no-op for existing compositions.
 - The plugin runs on released dsh plugin surfaces and does not require a modified Harness checkout. It can generate attachments and save local output when installed alone.
 - ChatGPT plan eligibility, model access, quotas, and backend behavior are controlled by OpenAI and may change.
 - The Codex endpoint does not enforce the ordinary Responses `max_output_tokens` field. Compaction works, but its configured summary cap cannot be imposed server-side on this route.

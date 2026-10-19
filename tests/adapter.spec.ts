@@ -166,7 +166,7 @@ describe("OpenAI Codex adapter policy", () => {
 
   it("advertises only configured models while keeping hidden models resolvable", async () => {
     const adapter = createOpenAICodexAdapter(
-      {} as OpenAICodexCredentialStore,
+      { read: async () => undefined } as unknown as OpenAICodexCredentialStore,
       () => undefined,
       () => ({ useWebSocketContextReuse: false, useNativeCompaction: false }),
       undefined,
@@ -189,7 +189,7 @@ describe("OpenAI Codex adapter policy", () => {
 
   it("keeps Luna Reserve hidden while borrowing Luna's image and reasoning capabilities", async () => {
     const adapter = createOpenAICodexAdapter(
-      {} as OpenAICodexCredentialStore,
+      { read: async () => undefined } as unknown as OpenAICodexCredentialStore,
       () => undefined,
       () => ({ useWebSocketContextReuse: false, useNativeCompaction: false })
     );
@@ -295,6 +295,7 @@ describe("OpenAI Codex adapter policy", () => {
       "gpt-5.6-terra",
       "gpt-5.6-luna",
       "gpt-5.5",
+      "gpt-6.1-sol",
     ]);
     expect(catalog.find((model) => model.id === "gpt-6-astra")).toMatchObject({
       name: "GPT-6 Astra",
@@ -359,7 +360,7 @@ describe("OpenAI Codex adapter policy", () => {
 
   it("advertises the full provider catalog when no model list is configured", async () => {
     const adapter = createOpenAICodexAdapter(
-      {} as OpenAICodexCredentialStore,
+      { read: async () => undefined } as unknown as OpenAICodexCredentialStore,
       () => undefined,
       () => ({ useWebSocketContextReuse: false, useNativeCompaction: false })
     );

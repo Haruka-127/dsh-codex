@@ -4,8 +4,8 @@ import { fileURLToPath } from 'node:url'
 
 export const COMPATIBILITY_SCHEMA_VERSION = 1 as const
 export const SUPPORTED_NODE_RANGE = '^22.19.0 || >=24.0.0'
-export const SUPPORTED_DSH_PLUGIN_API_VERSION = '0.2.0-rc.2'
-export const SUPPORTED_PI_AI_VERSION = '0.87.1'
+export const SUPPORTED_DSH_PLUGIN_API_VERSION = '0.2.1-rc.2'
+export const SUPPORTED_PI_AI_VERSION = '1.1.0'
 export const PI_AI_PACKAGE = '@earendil-works/pi-ai'
 
 export const DSH_PLUGIN_API_PACKAGES = [
@@ -19,7 +19,6 @@ export const DSH_PLUGIN_API_PACKAGES = [
   '@deepseek-ai/dsh-home-paths',
   '@deepseek-ai/dsh-host-webserver',
   '@deepseek-ai/dsh-http-proxy',
-  '@deepseek-ai/dsh-invariants',
   '@deepseek-ai/dsh-llm',
   '@deepseek-ai/dsh-llm-pi-ai',
   '@deepseek-ai/dsh-fs',

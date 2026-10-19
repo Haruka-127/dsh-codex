@@ -9,6 +9,7 @@ import Loader from '@deepseek-ai/cordis-plugin-loader'
 import LlmRuntime from '@deepseek-ai/dsh-llm'
 import WebRuntime from '@deepseek-ai/dsh-web'
 import * as OpenAICodex from '../src/index.ts'
+import * as LegacyInvariant from '../src/invariant.ts'
 
 let root: string | undefined
 let context: Context | undefined
@@ -21,6 +22,12 @@ afterEach(async () => {
 })
 
 describe('OpenAI Codex real composition', () => {
+  it('loads the legacy invariant companion without the retired service', async () => {
+    const ctx = new Context()
+    context = ctx
+    await expect(ctx.plugin(LegacyInvariant)).resolves.toBeDefined()
+  })
+
   it('loads through the Loader, exposes the catalog, and unregisters on disposal', async () => {
     root = await mkdtemp(join(tmpdir(), 'dsh-openai-codex-loader-'))
     const configPath = join(root, 'cordis.yml')
