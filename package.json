@@ -73,7 +73,7 @@
   },
   "dependencies": {
     "@deepseek-ai/dsh-session-format-catalog": "0.2.1-rc.2",
-    "undici": "8.10.0"
+    "undici": "8.12.2"
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "~4.0.5",
